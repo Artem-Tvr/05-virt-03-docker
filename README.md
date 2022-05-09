@@ -26,6 +26,53 @@ Hey, Netology
 
 https://hub.docker.com/repository/docker/artemdevops/netology
 
+```
+root@cadcixztkv:~# docker pull ubuntu/nginx
+Using default tag: latest
+latest: Pulling from ubuntu/nginx
+c9270d8556cf: Pull complete
+4f59a1458174: Pull complete
+83da71339431: Pull complete
+c7f0723302c6: Pull complete
+Digest: sha256:12914e20b3ad6d2ef7504b525dcfd24e8ce258286f245783b6760f26b67f7020
+Status: Downloaded newer image for ubuntu/nginx:latest
+docker.io/ubuntu/nginx:latest
+root@cadcixztkv:~# docker images
+REPOSITORY     TAG       IMAGE ID       CREATED       SIZE
+ubuntu/nginx   latest    33345394c4b7   2 weeks ago   144MB
+root@cadcixztkv:~# docker run -d -p 1234:80 ubuntu/nginx:latest
+bec29259087b0670173dc5c39d3a6bc97e67c6a0c289564368fe5f6a67777b39
+root@cadcixztkv:~# docker ps
+CONTAINER ID   IMAGE                 COMMAND                  CREATED          STATUS         PORTS                                   NAMES
+bec29259087b   ubuntu/nginx:latest   "/docker-entrypoint.…"   10 seconds ago   Up 9 seconds   0.0.0.0:1234->80/tcp, :::1234->80/tcp   brave_kalam
+root@cadcixztkv:~# docker commit bec29259087b  testimage:v1
+sha256:920779d70bba226d43684efabaca871d47ecd61b0ce7cbbd94abe4e03870ee40
+root@cadcixztkv:~# docker images
+REPOSITORY     TAG       IMAGE ID       CREATED          SIZE
+testimage      v1        920779d70bba   22 seconds ago   144MB
+ubuntu/nginx   latest    33345394c4b7   2 weeks ago      144MB
+root@cadcixztkv:~# cd /opt/docker/mynginx/
+root@cadcixztkv:/opt/docker/mynginx# mkdir html
+root@cadcixztkv:/opt/docker/mynginx# docker build -t mytestimage:v2 .
+Sending build context to Docker daemon  3.584kB
+Step 1/2 : FROM testimage:v1
+ ---> 920779d70bba
+Step 2/2 : COPY ./html/ /usr/share/nginx/html/
+ ---> 8ae6da668658
+Successfully built 8ae6da668658
+Successfully tagged mytestimage:v2
+root@cadcixztkv:/opt/docker/mynginx# docker run -t -i mytestimage:v2 /bin/bash
+root@83fb652665b8:/# cat /usr/share/nginx/html/index.html
+<html>
+<head>
+Hey, Netology
+</head>
+<body>
+<h1>I’m DevOps Engineer!</h1>
+</body>
+</html>
+
+```
 
 ## Задача 2
 
@@ -37,14 +84,38 @@ https://hub.docker.com/repository/docker/artemdevops/netology
 
 Сценарий:
 
-* Высоконагруженное монолитное java веб-приложение;
-* Nodejs веб-приложение;
-* Мобильное приложение c версиями для Android и iOS;
-* Шина данных на базе Apache Kafka;
-* Elasticsearch кластер для реализации логирования продуктивного веб-приложения - три ноды elasticsearch, два logstash и две ноды kibana;
-* Мониторинг-стек на базе Prometheus и Grafana;
-* MongoDB, как основное хранилище данных для java-приложения;
-* Gitlab сервер для реализации CI/CD процессов и приватный (закрытый) Docker Registry.
+(-) Высоконагруженное монолитное java веб-приложение;
+
+Ответ: физический сервер, т.к. монолитное, в микросерверах не реализуемо,а так же если высоконагруженное -  то нужно иметь физический доступ к ресурсами, без использования гипервизора виртуалки.
+
+(-) Nodejs веб-приложение;
+
+Ответ: для веб приложения Docker подходит отлично для реализации микросервисов.
+
+(-) Мобильное приложение c версиями для Android и iOS;
+
+Ответ: здесь больше подходит ВМ, так как Docker не имеет графического интерфейса.
+
+(-) Шина данных на базе Apache Kafka;
+
+Ответ: думаю Docker вполне подойдет, с использованием Volume для хранения данных.
+
+(-) Elasticsearch кластер для реализации логирования продуктивного веб-приложения - три ноды elasticsearch, два logstash и две ноды kibana;
+
+Ответ: вполне реализуемо с помощью контейнеризации, данные хранить в Volume.
+
+(-) Мониторинг-стек на базе Prometheus и Grafana;
+
+Ответ: сами системы данные не хранят, противопоказаний для развертывания в Docker не вижу.
+
+(-) MongoDB, как основное хранилище данных для java-приложения;
+
+Ответ: больше подойдет ВМ или физический сервер.
+
+(-) Gitlab сервер для реализации CI/CD процессов и приватный (закрытый) Docker Registry.
+
+Ответ: эти сервисы разворачивать на базе Docker мне видится хорошей идеей, с использованием отдельных контейнеров под компоненты систем.
+
 
 ## Задача 3
 
